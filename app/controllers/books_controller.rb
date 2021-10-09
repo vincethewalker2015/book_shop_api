@@ -1,5 +1,6 @@
 class BooksController < ApplicationController
 
+
   def index
     #To Test this: curl http://localhost:3000/books
     render json: Book.all
@@ -25,6 +26,12 @@ class BooksController < ApplicationController
 
     # BELOW, there is no need to render a json object as the object has been deleted, thus render a 'head' with a 'no_content' ststus code
     head :no_content
+    # If the destroy action fails for some reason, we can write a rescue block below.
+    # There are some disadvantages to having a rescue block in the controller action, as adding a few of them will make the conrroller bloated, best way to do this: 
+    # In the ApplicationController Create a private method eg 'not_destroyed, and add rescue_from... to the top (ref ApplicationController)
+  # rescue ActiveRecord::RecordNotDestroyed
+  #   render json: {}, status: :unprocessable_entity
+   
   end
 
   private
@@ -32,4 +39,5 @@ class BooksController < ApplicationController
   def book_params
     params.require(:book).permit(:title, :author)
   end
+
 end
