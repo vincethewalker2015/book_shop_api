@@ -1,13 +1,38 @@
 require 'rails_helper'
 
+
 describe 'Books API', type: :request do 
-  it 'returns all books' do
-    FactoryBot.create(:book, title: '1984', author: 'George Orwell')
-    FactoryBot.create(:book, title: 'The Time Machine', author: 'HG Wells')
+  describe 'GET /books' do
+    it 'returns all books' do
+      FactoryBot.create(:book, title: '1984', author: 'George Orwell')
+      FactoryBot.create(:book, title: 'The Time Machine', author: 'HG Wells')
+      
+      get '/api/v1/books'
+  
+      
+      expect(response).to have_http_status(:success)
+      expect(JSON.parse(response.body).size).to eq(2)
+    end
+  end
 
-    get '/api/v1/books'
+  describe 'POST /books' do
+    it 'create a new book' do
+      expect {
+      post '/api/v1/books', params: { book: {title: 'The Martian', author: 'Andy Weir'} }
+      }.to change { Book.count }.from(0).to(1)
+      
+      expect(response).to have_http_status(:created)
+    end
+  end
 
-    expect(response).to have_http_status(:success)
-    expect(JSON.parse(response.body).size).to eq(2)
+  describe 'DELETE /books/:id' do
+    # book = FactoryBot.create(:book, title: '1984', author: 'George Orwell') 'Convert this into a let variable'
+    let!(:book) { FactoryBot.create(:book, title: '1984', author: 'George Orwell') }
+    it 'deletes a  book' do
+      expect {
+      delete "/api/v1/books/#{book.id}" 
+      }.to change { Book.count }.from(1).to(0)
+      expect(response).to have_http_status(:no_content)
+    end
   end
 end
